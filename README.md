@@ -26,3 +26,4 @@ runsMain.m各函数的最优值 标准差 平均值 中值 最差值 以及wilco
 XRmain_design.m:用于计算算法的各个测试数据的消融实验
 XRtest.m:三维无人机航迹优化的消融实验
 数据集说明
+input_data22:cec2022测试函数的数据集
