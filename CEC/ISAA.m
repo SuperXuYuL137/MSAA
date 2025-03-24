@@ -1,8 +1,15 @@
 %ISAA
-function [bestfit,Best_solution,iteration_values] = ISAA(NP, Itermax, Xmin, Xmax, D,fobj)
+function [Best_solution,bestfit,iteration_values] = ISAA(NP, Itermax, Xmin, Xmax, D,fobj,label)
     %步骤1：调整SAA参数
     si=0.8;%您可以根据自己的要求调整此值
-    NP = NP*10;
+    %初始化迭代_值数组以进行打印
+    % Initialize the bounds for each dimension
+    %Best_solution = zeros(1,D);
+    wmin=0.4;
+    wmax=0.9;
+    c = 10;
+    % Exponent for r1 calculation
+    alpha = 1.6; 
     fitness = zeros(1, NP);
     iteration_values = zeros(1, Itermax);
     % Initialize the best solutions array
@@ -10,42 +17,44 @@ function [bestfit,Best_solution,iteration_values] = ISAA(NP, Itermax, Xmin, Xmax
     Iter = 0;
     % Counter for unchanged best solution
     unchanged_best_counter = 0;
-    Xc = (Xmin+Xmax)/2;
     %步骤2：生成随机初始总体
-    % NP_population = Xmin + rand(NP, D) .* (Xmax - Xmin);
-    
-    % 使用拉丁超立方抽样初始化种群
-    lhs_population = lhsdesign(NP, D);
-    % 将拉丁超立方抽样结果缩放到指定范围
-    NP_population = Xmin + lhs_population .* (Xmax - Xmin);
+    %NP_population = Xmin + rand(NP, D) .* (Xmax - Xmin);
+    NP_population = initialization(NP, D, Xmin, Xmax,label);
+
+    %中心解
+    Xc=(Xmin+Xmax)/2;
     % %第3步：计算每个人的适合度
     for i = 1:size(NP_population,1)
         fitness(i) = fobj(NP_population(i,:));      
     end
     %主循环
     while Iter < Itermax
-        si = si+(1-si)*rand;
+        si = si+(1-si)*Map(1,1,4);
         %si = si+(1-si)*rand();
         Iter = Iter + 1;
+        % %改进：自适应惯性权重
+        w = power(wmin*(wmax/wmin),1/(1 + c/Iter));
         % Sine Cosine Algorithm (SCA) position update
-        
+        r1 = (1 - (Iter / Itermax)^alpha)^(1 / alpha);r2 = rand * 2 * pi; r3 = 2 * rand; r4 = rand;
         for i = 1:size(NP_population,1)
             selected_indices = randperm(size(NP_population,1), 3);
             XBest = NP_population(find(fitness == min(fitness), 1), :);
             bestfit = fobj(XBest);
-            %随机游走策略
-            % 选择一个随机个体
-            num_individuals = size(NP_population, 1); % 获取种群中的个体数量
-            random_index = randi(num_individuals); % 生成一个随机整数，表示个体的索引
-            Xr = NP_population(random_index, :); % 获取随机个体
 
-            % 在主循环中的任意位置（例如在每一代迭代时）添加这行代码：
-            X_avg = mean(NP_population, 1);  % 按列计算平均值，即每个维度的平均位置
-            r1 =rand; r2 = rand; r3 = rand; r4 = rand;r5 = rand;
-            if r3>=0.5
-                Xz=Xr-r1*abs(Xr-2*r2*NP_population(i, :));
+            %随机中心解
+            xl = ceil(NP*rand);
+            while xl==i
+                xl = ceil(NP*rand);
+            end
+            xr = ceil(NP*rand);
+            while xr==i
+                xr = ceil(NP*rand);
+            end
+            Xc_rand=rand;
+            if Xc_rand<0.5
+                Xz=Xc+(NP_population(xr,:)-Xc).*rand();
             else
-                Xz=XBest-X_avg-r4*(r5*(Xmax-Xmin)+Xmin);
+                Xz=Xc+(Xc-NP_population(xl,:)).*rand();
             end
             if fobj(Xz) < fobj(XBest)
                  Flag4ub=Xz>Xmax;
@@ -59,14 +68,13 @@ function [bestfit,Best_solution,iteration_values] = ISAA(NP, Itermax, Xmin, Xmax
             Xr3 = NP_population(selected_indices(3), :);
            %步骤6-9：根据条件更新个体解
             if rand < si
-                % 融入levy飞行策略
-                Xnew = XBest +rand(1,D).* (Xr1 - Xr2);
+                Xnew = XBest +Map(1,D,4).* (Xr1 - Xr2);
             elseif rand < si
-                Xnew = Xr3 + rand(1,D).* (Xr1 - Xr2);
+                Xnew = Xr3 + Map(1,D,4).* (Xr1 - Xr2);
             elseif rand < si
-                Xnew = NP_population(i, :) + rand(1,D).* (Xr1 - Xr2);
+                Xnew = NP_population(i, :) + Map(1,D,4).* (Xr1 - Xr2);
             else
-                Xnew = NP_population(i, :) + rand(1,D).* (Xmax - Xmin);
+                Xnew = NP_population(i, :) + Map(1,D,4).* (Xmax - Xmin);
             end
             %步骤10-12：如果新的解决方案更好，则更新解决方案
             if fobj(Xnew) < fobj(NP_population(i, :)) 
@@ -81,13 +89,27 @@ function [bestfit,Best_solution,iteration_values] = ISAA(NP, Itermax, Xmin, Xmax
                  NP_population(i, :) = Xnew;
                  fitness(i) = fobj(Xnew);
             end
-             % if the best solution remains unchanged for 5 consecutive iterations
+             % SCA step if the best solution remains unchanged for 5 consecutive iterations
             unchanged_best_counter = unchanged_best_counter + 1;
             if unchanged_best_counter >= 5
-                % 从柯西分布中生成一个随机数
-                cauchy_random = tan(pi * (rand - 0.5)); % 生成一个来自 Cauchy(0,1) 的随机数
-                % XBest = XBest+XBest * cauchy_random;
-                unchanged_best_counter = 0; % Reset the counter after applyingstep
+                Pt = XBest;
+                if r4 >= 0.5
+                    Xs = w * NP_population(i, :) + r1 * sin(r2) * abs(r3 * Pt - NP_population(i, :));
+                else
+                    Xs = w * NP_population(i, :) + r1 * cos(r2) * abs(r3 * Pt - NP_population(i, :));
+                end
+                
+                % Boundary check for Xnew
+                Flag4ub = Xs > Xmax;
+                Flag4lb = Xs < Xmin;
+                Xs = (Xs .* (~(Flag4ub + Flag4lb))) + Xmax .* Flag4ub + Xmin .* Flag4lb;
+                
+                % Update solution if the new solution is better
+                if fobj(Xs) < fobj(NP_population(i, :))
+                    NP_population(i, :) = Xs;
+                    fitness(i) = fobj(Xs);
+                end
+                unchanged_best_counter = 0; % Reset the counter after applying SCA step
             end
             %% Update the best solution found so far
             if fitness(i) < bestfit
