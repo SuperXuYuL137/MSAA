@@ -1,9 +1,4 @@
-%% 淘个代码 %%
-% 2023/10/07 %
-%微信公众号搜索：淘个代码，获取更多免费代码
-%禁止倒卖转售，违者必究！！！！！
-%唯一官方店铺：https://mbd.pub/o/author-amqYmHBs/work，其他途径都是骗子！
-%%
+
 %%
 clear
 clc
@@ -41,56 +36,9 @@ for func_num = 1:length(F)
     box_plot = [box_plot;final_main]; %统计箱型图结果
     zz = [min(final_main);std(final_main);mean(final_main);median(final_main);max(final_main)];
     resu = [resu,zz];
-    disp(['HSAA：最优值:',num2str(zz(1)),' 标准差:',num2str(zz(2)),' 平均值:',num2str(zz(3)),' 中值:',num2str(zz(4)),' 最差值:',num2str(zz(5))]);
+    disp(['MSAA：最优值:',num2str(zz(1)),' 标准差:',num2str(zz(2)),' 平均值:',num2str(zz(3)),' 中值:',num2str(zz(4)),' 最差值:',num2str(zz(5))]);
    
-    %% Run the WOA algorithm for "run" times
-    for nrun=1:run
-        [final,position,iter]=WOA(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);
-        final_main(nrun)=final;
-        z2(nrun) =  final;
-    end
-    box_plot = [box_plot;final_main]; %统计箱型图结果
-    zz = [min(final_main);std(final_main);mean(final_main);median(final_main);max(final_main)];
-    resu = [resu,zz];
-    rs = ranksum(z1,z2);
-    if isnan(rs)  %当z1与z2完全一致时会出现NaN值，这种概率很小，但是要做一个防止报错
-        rs=1;
-    end
-    rank_sum_resu = [rank_sum_resu,rs]; %统计秩和检验结果WOA
-    disp(['WOA：最优值:',num2str(zz(1)),' 标准差:',num2str(zz(2)),' 平均值:',num2str(zz(3)),' 中值:',num2str(zz(4)),' 最差值:',num2str(zz(5))]);
-
-    %% Run the PSO algorithm for "run" times
-    for nrun=1:run
-        [final,position,iter]=PSO(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);
-        final_main(nrun)=final;
-        z2(nrun) =  final;
-    end
-    box_plot = [box_plot;final_main]; %统计箱型图结果
-    zz = [min(final_main);std(final_main);mean(final_main);median(final_main);max(final_main)];
-    resu = [resu,zz];
-    rs = ranksum(z1,z2);
-    if isnan(rs)  %当z1与z2完全一致时会出现NaN值，这种概率很小，但是要做一个防止报错
-        rs=1;
-    end
-    rank_sum_resu = [rank_sum_resu,rs]; %统计秩和检验结果PSO
-    disp(['PSO：最优值:',num2str(zz(1)),' 标准差:',num2str(zz(2)),' 平均值:',num2str(zz(3)),' 中值:',num2str(zz(4)),' 最差值:',num2str(zz(5))]);
-
-    %% Run the GWO algorithm for "run" times
-    for nrun=1:run
-        [final,position,iter]=GWO(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);
-        final_main(nrun)=final;
-        z2(nrun) =  final;
-
-    end
-    box_plot = [box_plot;final_main]; %统计箱型图结果
-     zz = [min(final_main);std(final_main);mean(final_main);median(final_main);max(final_main)];
-    resu = [resu,zz];
-    rs = ranksum(z1,z2);
-    if isnan(rs)  %当z1与z2完全一致时会出现NaN值，这种概率很小，但是要做一个防止报错
-        rs=1;
-    end
-    rank_sum_resu = [rank_sum_resu,rs]; %统计秩和检验结果
-    disp(['GWO：最优值:',num2str(zz(1)),' 标准差:',num2str(zz(2)),' 平均值:',num2str(zz(3)),' 中值:',num2str(zz(4)),' 最差值:',num2str(zz(5))]);
+   
     
     %% Run the SAA algorithm for "run" times
     for nrun=1:run
@@ -129,11 +77,11 @@ for func_num = 1:length(F)
         %设置线宽
         set(box_figure,'Linewidth',1.2);
         boxobj = findobj(gca,'Tag','Box');
-        for i = 1:5   %因为总共有5个算法，这里记者根据自身实际情况更改！
+        for i = 1:2   %因为总共有5个算法，这里记者根据自身实际情况更改！
             patch(get(boxobj(i),'XData'),get(boxobj(i),'YData'),mycolor(i,:),'FaceAlpha',0.5,...
                 'LineWidth',0.7);
         end
-        set(gca,'XTickLabel',{'HSAA','WOA','PSO','GWO','SAA'});
+        set(gca,'XTickLabel',{'MSAA','SAA'});
         title(['F',num2str(F(func_num))])
         hold on
     end 
@@ -159,7 +107,7 @@ for i = 1:length(F)
 end
 A = cellstr (A);
 A = [A,num2cell(RESULT)];
-title = {" "," ","HSAA","WOA","PSO","GWO","SAA"};
+title = {" "," ","MSAA","SAA"};
 A = [title;A];
 xlswrite('result.xls', A)
 
@@ -172,7 +120,7 @@ for i = 1:length(F)
 end
 B = cellstr (B);
 B = [B,num2cell(rank_sum_RESULT)];
-title = {" ","WOA","PSO","GWO","SSA"};%  秩和检验是和改进的算法做比较
+title = {" ","SSA"};%  秩和检验是和改进的算法做比较
 B = [title;B];
 xlswrite('ranksumresult.xls', B)
 
