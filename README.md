@@ -1,6 +1,6 @@
 # MSAA
 
-> #### Enhanced Three-Dimensional Path Planning for Unmanned Aerial Vehicles using a Multi-Strategy Snow Avalanches Algorithm
+> #### Source code for some of the results shown in the paper "Enhanced Three-Dimensional Path Planning for Unmanned Aerial Vehicles using a Multi-Strategy Snow Avalanches Algorithms"submitted in The Visual Computer in 2025.This is aimed at researchers, students or profesionnals who may want to reproduce some of the results described in the paper.
 
 
 ## CEC2022 test problems
