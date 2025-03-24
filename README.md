@@ -15,5 +15,5 @@
 ## Citation
 > CitationIf this is helpful to your work, please cite this paper, thank you🥰<br /><br />If you have any other questions, please do not hesitate to contact me🌈<br /><br />Xu Y, Mo Y. "Enhanced Three-Dimensional Path Planning for Unmanned Aerial Vehicles using a Multi-Strategy Snow Avalanches Algorithm." Vis. Comput.(2025)
 
-## Citation
+## Missing
 > There are still some things missing from the paper implementation. They might be added in the future if someone is interested.
