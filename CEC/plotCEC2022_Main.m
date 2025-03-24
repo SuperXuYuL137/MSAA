@@ -13,18 +13,9 @@ variables_no = 10; % 可选 2, 10, 20
 [lower_bound,upper_bound,variables_no,fobj]=Get_Functions_cec2022(number,variables_no);  % [lb,ub,D,y]：下界、上界、维度、目标函数表达式
 pop_size=30;                      % population members 
 max_iter=500;                  % maximum number of iteration
-%% ASFSSA
-[HSAA_Best_score,Best_pos,HSAA_curve]=ISAA(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);  % Calculating the solution of the given problem using ASFSSA 
-display(['The best optimal value of the objective funciton found by ASFSSA  for ' [num2str(number)],'  is : ', num2str(HSAA_Best_score)]);
-%% WOA
-[WOA_Best_score,~,WOA_curve]=WOA(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);
-display(['The best optimal value of the objective funciton found by DBO  for ' [num2str(number)],'  is : ', num2str(WOA_Best_score)]);
-%% PSO
-[PSO_Best_score,~,PSO_curve]=PSO(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);
-display(['The best optimal value of the objective funciton found by PSO  for ' [num2str(number)],'  is : ', num2str(PSO_Best_score)]);
-%% GWO
-[GWO_Best_score,~,GWO_curve]=GWO(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);
-display(['The best optimal value of the objective funciton found by GWO  for ' [num2str(number)],'  is : ', num2str(GWO_Best_score)]);
+%% MSAA
+[HSAA_Best_score,Best_pos,HSAA_curve]=ISAA(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);  % Calculating the solution of the given problem using MSAA 
+display(['The best optimal value of the objective funciton found by MSAA  for ' [num2str(number)],'  is : ', num2str(HSAA_Best_score)]);
 %% SAA
 [SAA_Best_score,~,SAA_curve]=SAA(pop_size,max_iter,lower_bound,upper_bound,variables_no,fobj);
 display(['The best optimal value of the objective funciton found by SAA  for ' [num2str(number)],'  is : ', num2str(SAA_Best_score)]);
@@ -37,12 +28,6 @@ k=round(linspace(1,max_iter,CNT)); %随机选CNT个点
 iter=1:1:max_iter;
     semilogy(iter(k),HSAA_curve(k),'b-^','linewidth',1);
     hold on
-    semilogy(iter(k),WOA_curve(k),'m-*','linewidth',1);
-    hold on
-    semilogy(iter(k),PSO_curve(k),'k-p','linewidth',1);
-    hold on
-    semilogy(iter(k),GWO_curve(k),'c-s','linewidth',1);
-    hold on
     semilogy(iter(k),SAA_curve(k),'r-v','linewidth',1);
 grid on;
 set(gca, 'color', 'w');
@@ -50,7 +35,7 @@ title('收敛曲线')
 xlabel('迭代次数');
 ylabel('适应度值');
 box on
-legend('HSAA','WOA','PSO','GWO','SAA')
+legend('MSAA','SAA')
 
 % Set the figure size and position
 set(gcf,'position', [300,300,600,450])
